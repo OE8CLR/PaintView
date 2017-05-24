@@ -4,11 +4,11 @@
 // actions declared in your storyboard file.
 // Manual changes to this file will not be maintained.
 //
-using Foundation;
-using System;
-using System.CodeDom.Compiler;
 
-namespace XamarinPaint
+using System.CodeDom.Compiler;
+using Foundation;
+
+namespace XamarinPaint.iOS.Demo
 {
     [Register ("MainViewController")]
     partial class MainViewController

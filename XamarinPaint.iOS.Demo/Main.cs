@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace XamarinPaint
+namespace XamarinPaint.iOS.Demo
 {
 	public class Application
 	{

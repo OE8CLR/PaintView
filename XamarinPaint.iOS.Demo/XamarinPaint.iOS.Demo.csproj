@@ -6,9 +6,9 @@
     <ProjectTypeGuids>{FEACFBD2-3405-455C-9665-78FE426C6842};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <ProjectGuid>{B900A2C2-C647-46EC-9087-012DEDC476B4}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>XamarinPaint</RootNamespace>
+    <RootNamespace>XamarinPaint.iOS.Demo</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>XamarinPaint</AssemblyName>
+    <AssemblyName>XamarinPaint.iOS.Demo</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|iPhoneSimulator' ">
     <DebugSymbols>true</DebugSymbols>

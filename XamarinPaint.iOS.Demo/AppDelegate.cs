@@ -1,7 +1,7 @@
 ﻿using Foundation;
 using UIKit;
 
-namespace XamarinPaint
+namespace XamarinPaint.iOS.Demo
 {
 	[Register ("AppDelegate")]
 	public class AppDelegate : UIApplicationDelegate {

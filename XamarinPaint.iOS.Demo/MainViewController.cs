@@ -1,9 +1,8 @@
 using System;
 using Foundation;
 using UIKit;
-using XamarinPaint.iOS;
 
-namespace XamarinPaint {
+namespace XamarinPaint.iOS.Demo {
 
 	public partial class MainViewController : UIViewController
     {
