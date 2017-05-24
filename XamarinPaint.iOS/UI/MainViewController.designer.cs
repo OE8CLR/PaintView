@@ -4,15 +4,19 @@
 // actions declared in your storyboard file.
 // Manual changes to this file will not be maintained.
 //
-
-using System.CodeDom.Compiler;
 using Foundation;
+using System;
+using System.CodeDom.Compiler;
 
 namespace XamarinPaint.UI
 {
     [Register ("MainViewController")]
     partial class MainViewController
     {
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
+        XamarinPaint.UI.CanvasView CanvasView { get; set; }
+
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem ColorPickerButton { get; set; }
@@ -41,6 +45,11 @@ namespace XamarinPaint.UI
 
         void ReleaseDesignerOutlets ()
         {
+            if (CanvasView != null) {
+                CanvasView.Dispose ();
+                CanvasView = null;
+            }
+
             if (ColorPickerButton != null) {
                 ColorPickerButton.Dispose ();
                 ColorPickerButton = null;

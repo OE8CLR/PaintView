@@ -1,16 +1,12 @@
 using System;
 using AdvancedColorPicker;
-using CoreGraphics;
 using Foundation;
 using UIKit;
-using XamarinPaint.Helpers;
 
 namespace XamarinPaint.UI {
 
 	public partial class MainViewController : UIViewController
     {
-		public CanvasView CanvasView => (CanvasView)View;
-
         [Export ("initWithCoder:")]
 		public MainViewController (NSCoder coder) : base (coder)
 		{
@@ -25,7 +21,12 @@ namespace XamarinPaint.UI {
         public override void ViewDidLoad()
         {
             base.ViewDidLoad();
-            
+
+            // Configure BackgroundView
+            View.BackgroundColor = UIColor.LightGray;
+
+            // Configure CanvasView
+            CanvasView.BackgroundColor = UIColor.Clear;
             CanvasView.DrawColor = UIColor.Black;
         }
 
