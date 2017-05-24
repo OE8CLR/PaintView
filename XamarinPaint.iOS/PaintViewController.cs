@@ -6,9 +6,11 @@ namespace XamarinPaint.iOS
 {
     public partial class PaintViewController : UIViewController
     {
+        public UIImage BackgroundImage { get; }
+
         public PaintViewController(UIImage backgroundImage = null) : base("PaintViewController", null)
         {
-
+            BackgroundImage = backgroundImage;
         }
 
         #region View life cylce
@@ -18,7 +20,7 @@ namespace XamarinPaint.iOS
             base.ViewDidLoad();
 
             // Configure BackgroundView
-            View.BackgroundColor = UIColor.LightGray;
+            ImageView.Image = BackgroundImage;
 
             // Configure CanvasView
             DrawView.BackgroundColor = UIColor.Clear;

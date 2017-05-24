@@ -27,6 +27,10 @@ namespace XamarinPaint.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
+        UIKit.UIImageView ImageView { get; set; }
+
+        [Outlet]
+        [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIBarButtonItem UndoButton { get; set; }
 
         [Action ("ClearViewButton_Activated:")]
@@ -56,6 +60,11 @@ namespace XamarinPaint.iOS
             if (DrawView != null) {
                 DrawView.Dispose ();
                 DrawView = null;
+            }
+
+            if (ImageView != null) {
+                ImageView.Dispose ();
+                ImageView = null;
             }
 
             if (UndoButton != null) {

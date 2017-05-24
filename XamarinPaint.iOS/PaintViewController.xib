@@ -10,23 +10,27 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PaintViewController">
             <connections>
-                <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
-                <outlet property="DrawView" destination="Yvd-N9-YrB" id="name-outlet-Yvd-N9-YrB"/>
                 <outlet property="ClearViewButton" destination="Iqb-X8-SiN" id="name-outlet-Iqb-X8-SiN"/>
-                <outlet property="UndoButton" destination="oig-kG-Xt3" id="name-outlet-oig-kG-Xt3"/>
                 <outlet property="DrawColorButton" destination="a05-L7-hIq" id="name-outlet-a05-L7-hIq"/>
+                <outlet property="DrawView" destination="Yvd-N9-YrB" id="name-outlet-Yvd-N9-YrB"/>
+                <outlet property="UndoButton" destination="oig-kG-Xt3" id="name-outlet-oig-kG-Xt3"/>
+                <outlet property="view" destination="2" id="RRd-Eg-VrN"/>
+                <outlet property="ImageView" destination="uvO-4N-wkP" id="name-outlet-uvO-4N-wkP"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <view contentMode="scaleToFill" id="2">
-            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yvd-N9-YrB" customClass="CanvasView">
+                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="uvO-4N-wkP" misplaced="YES">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                    <color key="backgroundColor" colorSpace="calibratedWhite" white="0" alpha="0"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yvd-N9-YrB" customClass="CanvasView" misplaced="YES">
+                    <rect key="frame" x="143" y="-7" width="375" height="667"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                 </view>
-                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2Uj-5A-CVq">
+                <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2Uj-5A-CVq" misplaced="YES">
                     <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                     <items>
                         <barButtonItem systemItem="trash" id="Iqb-X8-SiN">
@@ -48,11 +52,15 @@
                     </items>
                 </toolbar>
             </subviews>
-            <color key="backgroundColor" customColorSpace="sRGB" colorSpace="calibratedWhite" white="0.666666666666667" alpha="1"/>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
             <constraints>
                 <constraint firstAttribute="trailing" secondItem="Yvd-N9-YrB" secondAttribute="trailing" id="0PX-6X-e9w"/>
+                <constraint firstItem="uvO-4N-wkP" firstAttribute="top" secondItem="2" secondAttribute="top" id="1yr-J6-JqJ"/>
+                <constraint firstAttribute="trailing" secondItem="uvO-4N-wkP" secondAttribute="trailing" id="4iX-jP-DE0"/>
+                <constraint firstAttribute="bottom" secondItem="uvO-4N-wkP" secondAttribute="bottom" id="8Ud-3W-g8y"/>
                 <constraint firstAttribute="bottom" secondItem="Yvd-N9-YrB" secondAttribute="bottom" id="RDa-Qi-jfa"/>
                 <constraint firstAttribute="trailing" secondItem="2Uj-5A-CVq" secondAttribute="trailing" id="ZIY-30-uJB"/>
+                <constraint firstItem="uvO-4N-wkP" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="ZpR-or-Pvb"/>
                 <constraint firstItem="2Uj-5A-CVq" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="d0T-Xu-J7a"/>
                 <constraint firstItem="Yvd-N9-YrB" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="f0H-ZW-zwG"/>
                 <constraint firstAttribute="bottom" secondItem="2Uj-5A-CVq" secondAttribute="bottom" id="py9-3A-fHy"/>
@@ -60,7 +68,4 @@
             </constraints>
         </view>
     </objects>
-    <simulatedMetricsContainer key="defaultSimulatedMetrics">
-        <simulatedScreenMetrics key="destination" type="retina47"/>
-    </simulatedMetricsContainer>
 </document>
