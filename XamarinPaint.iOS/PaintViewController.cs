@@ -1,4 +1,5 @@
-﻿using AdvancedColorPicker;
+﻿using System;
+using AdvancedColorPicker;
 using Foundation;
 using UIKit;
 
@@ -76,7 +77,38 @@ namespace XamarinPaint.iOS
 
         partial void ClearViewButton_Activated(UIBarButtonItem sender)
         {
+            var image = CreateImageFromView();
             DrawView.Clear();
+            ImageView.Image = image;
+        }
+
+        #endregion
+
+        #region Public methods
+
+        public UIImage CreateImageFromView()
+        {
+            var rect = View.Frame;
+
+            UIGraphics.BeginImageContext(rect.Size);
+            try
+            {
+                using (var context = UIGraphics.GetCurrentContext())
+                {
+                    //View.Layer.RenderInContext(context);
+
+                    ImageView.Image.Draw(rect);
+
+                    using (var image = UIGraphics.GetImageFromCurrentImageContext())
+                    {
+                        return image;
+                    }
+                }
+            }
+            finally
+            {
+                UIGraphics.EndImageContext();
+            }
         }
 
         #endregion
