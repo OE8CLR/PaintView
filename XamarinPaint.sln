@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamarinPaint.iOS", "XamarinPaint.iOS\XamarinPaint.iOS.csproj", "{B900A2C2-C647-46EC-9087-012DEDC476B4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|iPhone = Debug|iPhone
+		Debug|iPhoneSimulator = Debug|iPhoneSimulator
+		Release|iPhone = Release|iPhone
+		Release|iPhoneSimulator = Release|iPhoneSimulator
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Debug|iPhone.ActiveCfg = Debug|iPhone
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Debug|iPhone.Build.0 = Debug|iPhone
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Debug|iPhoneSimulator.ActiveCfg = Debug|iPhoneSimulator
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Debug|iPhoneSimulator.Build.0 = Debug|iPhoneSimulator
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Release|iPhone.ActiveCfg = Release|iPhone
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Release|iPhone.Build.0 = Release|iPhone
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Release|iPhoneSimulator.ActiveCfg = Release|iPhoneSimulator
+		{B900A2C2-C647-46EC-9087-012DEDC476B4}.Release|iPhoneSimulator.Build.0 = Release|iPhoneSimulator
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
