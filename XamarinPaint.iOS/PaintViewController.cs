@@ -1,20 +1,15 @@
-using System;
-using AdvancedColorPicker;
+﻿using AdvancedColorPicker;
 using Foundation;
 using UIKit;
 
-namespace XamarinPaint.UI {
-
-	public partial class MainViewController : UIViewController
+namespace XamarinPaint.iOS
+{
+    public partial class PaintViewController : UIViewController
     {
-        [Export ("initWithCoder:")]
-		public MainViewController (NSCoder coder) : base (coder)
-		{
-		}
+        public PaintViewController(UIImage backgroundImage = null) : base("PaintViewController", null)
+        {
 
-		public MainViewController (IntPtr handle) : base (handle)
-		{
-		}
+        }
 
         #region View life cylce
 
@@ -26,8 +21,8 @@ namespace XamarinPaint.UI {
             View.BackgroundColor = UIColor.LightGray;
 
             // Configure CanvasView
-            CanvasView.BackgroundColor = UIColor.Clear;
-            CanvasView.DrawColor = UIColor.Black;
+            DrawView.BackgroundColor = UIColor.Clear;
+            DrawView.DrawColor = UIColor.Black;
         }
 
         public override bool ShouldAutorotate()
@@ -42,43 +37,44 @@ namespace XamarinPaint.UI {
 
         public override void TouchesBegan(NSSet touches, UIEvent evt)
         {
-            CanvasView.DrawTouches(touches, evt);
+            DrawView.DrawTouches(touches, evt);
         }
 
         public override void TouchesMoved(NSSet touches, UIEvent evt)
         {
-            CanvasView.DrawTouches(touches, evt);
+            DrawView.DrawTouches(touches, evt);
         }
 
         public override void TouchesEnded(NSSet touches, UIEvent evt)
         {
-            CanvasView.DrawTouches(touches, evt);
-            CanvasView.EndTouches(touches, false);
+            DrawView.DrawTouches(touches, evt);
+            DrawView.EndTouches(touches, false);
         }
 
         #endregion
 
         #region button actions
 
-        partial void ClearView(UIBarButtonItem sender)
-		{
-			CanvasView.Clear();
-		}
-
-        partial void ColorPickerButton_Activated(UIBarButtonItem sender)
+        partial void DrawColorButton_Activated(UIBarButtonItem sender)
         {
             ColorPickerViewController.Present(
                 NavigationController,
                 "Pick a color!",
-                CanvasView.DrawColor,
-                color => {
-                    CanvasView.DrawColor = color ?? UIColor.Black;
+                DrawView.DrawColor,
+                color =>
+                {
+                    DrawView.DrawColor = color ?? UIColor.Black;
                 });
         }
 
         partial void UndoButton_Activated(UIBarButtonItem sender)
         {
-            CanvasView.Undo();
+            DrawView.Undo();
+        }
+
+        partial void ClearViewButton_Activated(UIBarButtonItem sender)
+        {
+            DrawView.Clear();
         }
 
         #endregion
