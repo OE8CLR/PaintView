@@ -1,16 +1,47 @@
-﻿using AdvancedColorPicker;
-using Foundation;
+﻿using Foundation;
 using UIKit;
 
 namespace XamarinPaint.iOS
 {
     public partial class PaintViewController : UIViewController
     {
-        public UIImage BackgroundImage { get; }
-
-        public PaintViewController(UIImage backgroundImage = null) : base("PaintViewController", null)
+        private UIImage _cachedBackgroundImage;
+        protected UIImage BackgroundImage
         {
-            BackgroundImage = backgroundImage;
+            get => ImageView?.Image;
+            set
+            {
+                if (ImageView != null)
+                {
+                    ImageView.Image = value;
+                }
+                else
+                {
+                    _cachedBackgroundImage = value;
+                }
+            }
+        }
+
+        private readonly UIColor _defaultColor = UIColor.Black;
+        private UIColor _cachedDrawColor;
+        protected UIColor DrawColor
+        {
+            get => DrawView?.DrawColor ?? _defaultColor;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.DrawColor = value ?? _defaultColor;
+                }
+                else
+                {
+                    _cachedDrawColor = value;
+                }
+            }
+        }
+
+        public PaintViewController() : base("PaintViewController", null)
+        {
         }
 
         #region View life cylce
@@ -19,12 +50,9 @@ namespace XamarinPaint.iOS
         {
             base.ViewDidLoad();
 
-            // Configure BackgroundView
-            ImageView.Image = BackgroundImage;
-
-            // Configure CanvasView
-            DrawView.BackgroundColor = UIColor.Clear;
-            DrawView.DrawColor = UIColor.Black;
+            // Configure view
+            ImageView.Image = _cachedBackgroundImage ?? BackgroundImage;
+            DrawView.DrawColor = _cachedDrawColor ?? DrawColor;
         }
 
         public override bool ShouldAutorotate()
@@ -55,28 +83,32 @@ namespace XamarinPaint.iOS
 
         #endregion
 
-        #region button actions
+        #region Protected methods 
 
-        partial void DrawColorButton_Activated(UIBarButtonItem sender)
-        {
-            ColorPickerViewController.Present(
-                NavigationController,
-                "Pick a color!",
-                DrawView.DrawColor,
-                color =>
-                {
-                    DrawView.DrawColor = color ?? UIColor.Black;
-                });
-        }
+        protected void Undo() => DrawView?.Undo();
 
-        partial void UndoButton_Activated(UIBarButtonItem sender)
-        {
-            DrawView.Undo();
-        }
+        protected void Clear() => DrawView?.Clear();
 
-        partial void ClearViewButton_Activated(UIBarButtonItem sender)
+        #endregion 
+
+        #region Public methods
+
+        public UIImage TakeShnapshotFromView()
         {
-            DrawView.Clear();
+            UIGraphics.BeginImageContext(ContentView.Frame.Size);
+            try
+            {
+                var context = UIGraphics.GetCurrentContext();
+
+                ContentView.Layer.RenderInContext(context);
+
+                var image = UIGraphics.GetImageFromCurrentImageContext();
+                return !image.Size.IsEmpty ? image : null;
+            }
+            finally
+            {
+                UIGraphics.EndImageContext();
+            }
         }
 
         #endregion

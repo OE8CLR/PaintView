@@ -15,11 +15,7 @@ namespace XamarinPaint.iOS
     {
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem ClearViewButton { get; set; }
-
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem DrawColorButton { get; set; }
+        UIKit.UIView ContentView { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
@@ -29,32 +25,11 @@ namespace XamarinPaint.iOS
         [GeneratedCode ("iOS Designer", "1.0")]
         UIKit.UIImageView ImageView { get; set; }
 
-        [Outlet]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        UIKit.UIBarButtonItem UndoButton { get; set; }
-
-        [Action ("ClearViewButton_Activated:")]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        partial void ClearViewButton_Activated (UIKit.UIBarButtonItem sender);
-
-        [Action ("DrawColorButton_Activated:")]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        partial void DrawColorButton_Activated (UIKit.UIBarButtonItem sender);
-
-        [Action ("UndoButton_Activated:")]
-        [GeneratedCode ("iOS Designer", "1.0")]
-        partial void UndoButton_Activated (UIKit.UIBarButtonItem sender);
-
         void ReleaseDesignerOutlets ()
         {
-            if (ClearViewButton != null) {
-                ClearViewButton.Dispose ();
-                ClearViewButton = null;
-            }
-
-            if (DrawColorButton != null) {
-                DrawColorButton.Dispose ();
-                DrawColorButton = null;
+            if (ContentView != null) {
+                ContentView.Dispose ();
+                ContentView = null;
             }
 
             if (DrawView != null) {
@@ -65,11 +40,6 @@ namespace XamarinPaint.iOS
             if (ImageView != null) {
                 ImageView.Dispose ();
                 ImageView = null;
-            }
-
-            if (UndoButton != null) {
-                UndoButton.Dispose ();
-                UndoButton = null;
             }
         }
     }
