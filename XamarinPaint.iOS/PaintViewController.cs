@@ -1,4 +1,5 @@
-﻿using Foundation;
+﻿using CoreGraphics;
+using Foundation;
 using UIKit;
 
 namespace XamarinPaint.iOS
@@ -6,7 +7,7 @@ namespace XamarinPaint.iOS
     public partial class PaintViewController : UIViewController
     {
         private UIImage _cachedBackgroundImage;
-        protected UIImage BackgroundImage
+        public UIImage BackgroundImage
         {
             get => ImageView?.Image;
             set
@@ -24,7 +25,7 @@ namespace XamarinPaint.iOS
 
         private readonly UIColor _defaultColor = UIColor.Black;
         private UIColor _cachedDrawColor;
-        protected UIColor DrawColor
+        public UIColor DrawColor
         {
             get => DrawView?.DrawColor ?? _defaultColor;
             set
@@ -83,22 +84,35 @@ namespace XamarinPaint.iOS
 
         #endregion
 
-        #region Protected methods 
-
-        protected void Undo() => DrawView?.Undo();
-
-        protected void Clear() => DrawView?.Clear();
-
-        #endregion 
-
         #region Public methods
+
+        public void Undo() => DrawView?.Undo();
+
+        public void Clear() => DrawView?.Clear();
 
         public UIImage TakeShnapshotFromView()
         {
-            UIGraphics.BeginImageContext(ContentView.Frame.Size);
+            var viewSize = ContentView.Frame.Size;
+            var clippedRect = new CGRect(0, 0, viewSize.Width, viewSize.Height);
+
+            // Check if navigationBar is visible and adjust clippedRect
+            if (NavigationController != null && !NavigationController.NavigationBarHidden)
+            {
+                clippedRect.Y += NavigationController.NavigationBar.Frame.Height;
+                clippedRect.Height -= NavigationController.NavigationBar.Frame.Height;
+            }
+
+            // Check if toolbar is visible and adjust clippedRect
+            if (NavigationController != null && !NavigationController.ToolbarHidden)
+            {
+                clippedRect.Height -= NavigationController.Toolbar.Frame.Height;
+            }
+
+            UIGraphics.BeginImageContext(viewSize);
             try
             {
                 var context = UIGraphics.GetCurrentContext();
+                context.ClipToRect(clippedRect);
 
                 ContentView.Layer.RenderInContext(context);
 
