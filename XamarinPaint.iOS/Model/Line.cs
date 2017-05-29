@@ -5,10 +5,11 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.Helpers;
+using XamarinPaint.iOS.Interfaces;
 
-namespace XamarinPaint.Model {
+namespace XamarinPaint.iOS.Model {
 
-	public class Line : NSObject
+	public class Line : NSObject, IDrawElement
     {
 		private readonly Dictionary<NSNumber, LinePoint> _pointsWaitingForUpdatesByEstimationIndex = new Dictionary<NSNumber, LinePoint>();
 
@@ -18,6 +19,7 @@ namespace XamarinPaint.Model {
         public bool IsComplete => _pointsWaitingForUpdatesByEstimationIndex.Count == 0;
         public UIColor LineColor { get; }
         public nfloat LineWidth { get; }
+        public CGRect Frame => CGRectExtensions.CGRectNull();
 
         public Line(UIColor color, nfloat width)
         {
@@ -58,18 +60,6 @@ namespace XamarinPaint.Model {
                     updateRect = updateRect.UnionWith(CalcUpdateRectFor(priorPoint));
                 }
                 priorPoint = point;
-            }
-
-            return updateRect;
-        }
-
-        public CGRect Cancel()
-        {
-            var updateRect = CGRectExtensions.CGRectNull();
-            foreach (var point in Points)
-            {
-                point.PointType |= PointType.Cancelled;
-                updateRect = updateRect.UnionWith(CalcUpdateRectFor(point));
             }
 
             return updateRect;

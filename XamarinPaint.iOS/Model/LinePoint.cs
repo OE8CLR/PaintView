@@ -3,7 +3,7 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 
-namespace XamarinPaint.Model {
+namespace XamarinPaint.iOS.Model {
 
 	[Flags]
 	public enum PointType {

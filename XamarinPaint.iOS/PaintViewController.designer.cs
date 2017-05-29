@@ -7,6 +7,7 @@
 using Foundation;
 using System;
 using System.CodeDom.Compiler;
+using XamarinPaint.iOS.Views;
 
 namespace XamarinPaint.iOS
 {
@@ -19,7 +20,7 @@ namespace XamarinPaint.iOS
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]
-        XamarinPaint.UI.CanvasView DrawView { get; set; }
+        CanvasView DrawView { get; set; }
 
         [Outlet]
         [GeneratedCode ("iOS Designer", "1.0")]

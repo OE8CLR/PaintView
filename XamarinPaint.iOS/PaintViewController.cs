@@ -1,6 +1,8 @@
-﻿using CoreGraphics;
+﻿using System;
+using CoreGraphics;
 using Foundation;
 using UIKit;
+using XamarinPaint.iOS.Enum;
 
 namespace XamarinPaint.iOS
 {
@@ -41,9 +43,45 @@ namespace XamarinPaint.iOS
             }
         }
 
+        private DrawMode _drawMode = DrawMode.Line;
+        public DrawMode DrawMode
+        {
+            get => DrawView?.DrawMode ?? _drawMode;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.DrawMode = value;
+                }
+                else
+                {
+                    _drawMode = value;
+                }
+            }
+        }
+
+        private nfloat _drawLineWidth = 2.0f;
+        public nfloat DrawLineWidth
+        {
+            get => DrawView?.DrawLineWidth ?? _drawLineWidth;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.DrawLineWidth = value;
+                }
+                else
+                {
+                    _drawLineWidth = value;
+                }
+            }
+        }
+
+
         public PaintViewController() : base("PaintViewController", null)
         {
         }
+
 
         #region View life cylce
 
@@ -54,6 +92,8 @@ namespace XamarinPaint.iOS
             // Configure view
             ImageView.Image = _cachedBackgroundImage ?? BackgroundImage;
             DrawView.DrawColor = _cachedDrawColor ?? DrawColor;
+            DrawView.DrawMode = _drawMode;
+            DrawView.DrawLineWidth = _drawLineWidth;
         }
 
         public override bool ShouldAutorotate()
@@ -79,7 +119,7 @@ namespace XamarinPaint.iOS
         public override void TouchesEnded(NSSet touches, UIEvent evt)
         {
             DrawView.DrawTouches(touches, evt);
-            DrawView.EndTouches(touches, false);
+            DrawView.EndTouches(touches);
         }
 
         #endregion

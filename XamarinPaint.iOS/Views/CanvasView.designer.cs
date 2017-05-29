@@ -7,7 +7,7 @@
 
 using Foundation;
 
-namespace XamarinPaint.UI
+namespace XamarinPaint.iOS.Views
 {
     [Register ("CanvasView")]
     partial class CanvasView

@@ -1,7 +1,9 @@
 ﻿using System;
 using AdvancedColorPicker;
+using CoreGraphics;
 using Foundation;
 using UIKit;
+using XamarinPaint.iOS.Enum;
 
 namespace XamarinPaint.iOS.Demo
 {
@@ -64,9 +66,11 @@ namespace XamarinPaint.iOS.Demo
 
             var takeSnapshotButton = new UIBarButtonItem("Snapshot", UIBarButtonItemStyle.Done, SnapshotButtonPressed);
 
+            var drawModeButton = new UIBarButtonItem(CreateDrawModeSegmentControl());
+
             var flexibleSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);
 
-            SetToolbarItems(new[] { trashButton, flexibleSpace, undoButton, drawColorButton, takeSnapshotButton }, false);
+            SetToolbarItems(new[] { trashButton, flexibleSpace, drawModeButton, flexibleSpace, undoButton, drawColorButton, takeSnapshotButton }, false);
         }
 
         private void SaveImage(UIImage image)
@@ -83,6 +87,34 @@ namespace XamarinPaint.iOS.Demo
             {
                 Console.WriteLine($"Can't save image => {error}");
             }
+        }
+
+        private UISegmentedControl CreateDrawModeSegmentControl()
+        {
+            var segmentedControl = new UISegmentedControl("Line", "Cross", "Circle")
+            {
+                Frame = new CGRect(0, 0, 200.0, 44.0),
+                ControlStyle = UISegmentedControlStyle.Bar,
+                SelectedSegment = 0
+            };
+
+            segmentedControl.ValueChanged += delegate (object sender, EventArgs args)
+            {
+                if (segmentedControl.SelectedSegment == 0)
+                {
+                    DrawMode = DrawMode.Line;
+                }
+                else if (segmentedControl.SelectedSegment == 1)
+                {
+                    DrawMode = DrawMode.Cross;
+                }
+                else if (segmentedControl.SelectedSegment == 2)
+                {
+                    DrawMode = DrawMode.Circle;
+                }
+            };
+
+            return segmentedControl;
         }
 
         #endregion

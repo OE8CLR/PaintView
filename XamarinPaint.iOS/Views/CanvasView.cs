@@ -5,26 +5,25 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.Helpers;
-using XamarinPaint.Model;
+using XamarinPaint.iOS.Enum;
+using XamarinPaint.iOS.Interfaces;
+using XamarinPaint.iOS.Model;
 
-namespace XamarinPaint.UI {
+namespace XamarinPaint.iOS.Views {
 
 	public partial class CanvasView : UIView
     {
         private readonly bool _isPredictionEnabled = UIDevice.CurrentDevice.UserInterfaceIdiom == UIUserInterfaceIdiom.Pad;
 		private bool _needsFullRedraw = true;
 
-		// List containing all line objects that need to be drawn in Draw(CGRect rect)
-		private readonly List<Line> _lines = new List<Line>();
+        // List containing all drawElement objects that need to be drawn in Draw(CGRect rect)
+        private readonly List<IDrawElement> _drawElements = new List<IDrawElement>();
 
-		// List containing all line objects that have been completely drawn into the frozenContext.
-		private readonly List<Line> _finishedLines = new List<Line>();
+        // List containing all drawElement objects that have been completely drawn into the frozenContext.
+        private readonly List<IDrawElement> _finishedDrawElements = new List<IDrawElement>();
 
-		// Holds a map of UITouch objects to Line objects whose touch has not ended yet.
-		private readonly Dictionary<UITouch, Line> _activeLines = new Dictionary<UITouch, Line>();
-
-		// Holds a map of UITouch objects to Line objects whose touch has ended but still has points awaiting updates.
-		private readonly Dictionary<UITouch, Line> _pendingLines = new Dictionary<UITouch, Line>();
+        // Holds a map of UITouch objects to drawElement objects whose touch has not ended yet.
+        private readonly Dictionary<UITouch, IDrawElement> _activeDrawElements = new Dictionary<UITouch, IDrawElement>();
 
 		bool _usePreciseLocations;
 		public bool UsePreciseLocations {
@@ -36,10 +35,10 @@ namespace XamarinPaint.UI {
 			}
 		}
 
-		// An CGImage containing the last representation of lines no longer receiving updates.
-		private CGImage _frozenImage;
+        // An CGImage containing the last representation of drawElements no longer receiving updates.
+        private CGImage _frozenImage;
 
-		CGBitmapContext _frozenContext;
+		private CGBitmapContext _frozenContext;
 		public CGBitmapContext FrozenContext {
 			get {
 				if (_frozenContext == null) {
@@ -59,7 +58,12 @@ namespace XamarinPaint.UI {
 			}
 		}
 
-        public UIColor DrawColor { get; set; }
+        // Configure draw properties
+        public DrawMode DrawMode { get; set; } = DrawMode.Line;
+        public UIColor DrawColor { get; set; } = UIColor.Black;
+        public CGSize DrawSize { get; set; } = new CGSize(25.0, 25.0);
+        public nfloat DrawLineWidth { get; set; } = 5.0f;
+
 
 		[Export ("initWithCoder:")]
 		public CanvasView (NSCoder coder) : base (coder)
@@ -75,6 +79,7 @@ namespace XamarinPaint.UI {
 		{
 		}
 
+
         #region View life cylce
 
         public override void Draw(CGRect rect)
@@ -87,9 +92,17 @@ namespace XamarinPaint.UI {
                 SetFrozenImageNeedsUpdate();
                 FrozenContext.ClearRect(Bounds);
 
-                foreach (var line in _finishedLines)
+                foreach (var drawElement in _finishedDrawElements)
                 {
-                    line.DrawCommitedPointsInContext(FrozenContext, UsePreciseLocations);
+                    var line = drawElement as Line;
+                    if (line != null)
+                    {
+                        line.DrawCommitedPointsInContext(FrozenContext, UsePreciseLocations);
+                    }
+                    else
+                    {
+                        drawElement.DrawInContext(FrozenContext, UsePreciseLocations);
+                    }
                 }
 
                 _needsFullRedraw = false;
@@ -102,9 +115,9 @@ namespace XamarinPaint.UI {
                 context.DrawImage(Bounds, _frozenImage);
             }
 
-            foreach (var line in _lines)
+            foreach (var drawElement in _drawElements)
             {
-                line.DrawInContext(context, UsePreciseLocations);
+                drawElement.DrawInContext(context, UsePreciseLocations);
             }
         }
 
@@ -118,63 +131,73 @@ namespace XamarinPaint.UI {
 
             foreach (var touch in touches.Cast<UITouch>())
             {
-                Line line;
+                IDrawElement drawElement;
 
-                // Retrieve a line from activeLines. If no line exists, create one.
-                if (!_activeLines.TryGetValue(touch, out line))
+                // Retrieve a drawElement from activeLines. If no line exists, create one.
+                if (!_activeDrawElements.TryGetValue(touch, out drawElement))
                 {
-                    line = AddActiveLineForTouch(touch);
+                    drawElement = AddActiveDrawElement(touch);
                 }
 
-                // Remove prior predicted points and update the updateRect based on the removals. The touches
-                // used to create these points are predictions provided to offer additional data. They are stale
-                // by the time of the next event for this touch.
-                updateRect = updateRect.UnionWith(line.RemovePointsWithType(PointType.Predicted));
-
-                // Incorporate coalesced touch data. The data in the last touch in the returned array will match
-                // the data of the touch supplied to GetCoalescedTouches
-                var coalescedTouches = evt.GetCoalescedTouches(touch) ?? new UITouch[0];
-                var coalescedRect = AddPointsOfType(PointType.Coalesced, coalescedTouches, line);
-                updateRect = updateRect.UnionWith(coalescedRect);
-
-                // Incorporate predicted touch data. This sample draws predicted touches differently; however, 
-                // you may want to use them as inputs to smoothing algorithms rather than directly drawing them. 
-                // Points derived from predicted touches should be removed from the line at the next event for this touch.
-                if (_isPredictionEnabled)
+                var line = drawElement as Line;
+                if (line != null)
                 {
-                    var predictedTouches = evt.GetPredictedTouches(touch) ?? new UITouch[0];
-                    var predictedRect = AddPointsOfType(PointType.Predicted, predictedTouches, line);
-                    updateRect = updateRect.UnionWith(predictedRect);
+                    // Remove prior predicted points and update the updateRect based on the removals. The touches
+                    // used to create these points are predictions provided to offer additional data. They are stale
+                    // by the time of the next event for this touch.
+                    updateRect = updateRect.UnionWith(line.RemovePointsWithType(PointType.Predicted));
+
+                    // Incorporate coalesced touch data. The data in the last touch in the returned array will match
+                    // the data of the touch supplied to GetCoalescedTouches
+                    var coalescedTouches = evt.GetCoalescedTouches(touch) ?? new UITouch[0];
+                    var coalescedRect = AddPointsOfType(PointType.Coalesced, coalescedTouches, line);
+                    updateRect = updateRect.UnionWith(coalescedRect);
+
+                    // Incorporate predicted touch data. This sample draws predicted touches differently; however, 
+                    // you may want to use them as inputs to smoothing algorithms rather than directly drawing them. 
+                    // Points derived from predicted touches should be removed from the line at the next event for this touch.
+                    if (_isPredictionEnabled)
+                    {
+                        var predictedTouches = evt.GetPredictedTouches(touch) ?? new UITouch[0];
+                        var predictedRect = AddPointsOfType(PointType.Predicted, predictedTouches, line);
+                        updateRect = updateRect.UnionWith(predictedRect);
+                    }
+                }
+                else
+                {
+                    CommitDrawElement(drawElement);
+                    updateRect = updateRect.UnionWith(drawElement.Frame);
                 }
             }
             SetNeedsDisplayInRect(updateRect);
         }
 
-        public void EndTouches(NSSet touches, bool cancel)
+        public void EndTouches(NSSet touches)
         {
             var updateRect = CGRectExtensions.CGRectNull();
 
             foreach (var touch in touches.Cast<UITouch>())
             {
-                // Skip over touches that do not correspond to an active line.
-                Line line;
-                if (!_activeLines.TryGetValue(touch, out line)) continue;
+                // Skip over touches that do not correspond to an active drawElement.
+                IDrawElement drawElement;
+                if (!_activeDrawElements.TryGetValue(touch, out drawElement)) continue;
 
-                // If this is a touch cancellation, cancel the associated line.
-                if (cancel) updateRect = updateRect.UnionWith(line.Cancel());
-
-                // If the line is complete (no points needing updates) or updating isn't enabled, move the line to the frozenImage.
-                if (line.IsComplete)
+                // If the drawElement is complete (no points needing updates) or updating isn't enabled, move the drawElement to the frozenImage.
+                if (drawElement.IsComplete)
                 {
-                    FinishLine(line);
-                }
-                else
-                {
-                    _pendingLines.Add(touch, line);
+                    var line = drawElement as Line;
+                    if (line != null)
+                    {
+                        FinishLine(line);
+                    }
+                    else
+                    {
+                        FinishDrawElement(drawElement);
+                    }
                 }
 
-                // This touch is ending, remove the line corresponding to it from `activeLines`.
-                _activeLines.Remove(touch);
+                // This touch is ending, remove the drawElement corresponding to it from `activeDrawElements`.
+                _activeDrawElements.Remove(touch);
             }
 
             SetNeedsDisplayInRect(updateRect);
@@ -182,10 +205,10 @@ namespace XamarinPaint.UI {
 
         public void Undo()
         {
-            var lastElement = _finishedLines.LastOrDefault();
+            var lastElement = _finishedDrawElements.LastOrDefault();
             if (lastElement != null)
             {
-                _finishedLines.Remove(lastElement);
+                _finishedDrawElements.Remove(lastElement);
                 _needsFullRedraw = true;
                 SetNeedsDisplay();
             }
@@ -193,10 +216,9 @@ namespace XamarinPaint.UI {
 
         public void Clear()
         {
-            _activeLines.Clear();
-            _pendingLines.Clear();
-            _lines.Clear();
-            _finishedLines.Clear();
+            _activeDrawElements.Clear();
+            _drawElements.Clear();
+            _finishedDrawElements.Clear();
             _needsFullRedraw = true;
             SetNeedsDisplay();
         }
@@ -211,15 +233,72 @@ namespace XamarinPaint.UI {
 			_frozenImage = null;
 		}
 
-		private Line AddActiveLineForTouch(UITouch touch)
-		{
-			var newLine = new Line(DrawColor, 5.0f);
-			_activeLines.Add(touch, newLine);
-			_lines.Add(newLine);
-			return newLine;
-		}
+        private IDrawElement AddActiveDrawElement(UITouch touch)
+        {
+            IDrawElement newElement;
 
-		private CGRect AddPointsOfType(PointType type, UITouch[] touches, Line line)
+            switch (DrawMode)
+            {
+                case DrawMode.Line:
+                {
+                    newElement = new Line(DrawColor, DrawLineWidth);
+                    break;
+                }
+                case DrawMode.Cross:
+                {
+                    var view = touch.View;
+                    var location = touch.LocationInView(view);
+
+                    newElement = new Cross(DrawColor, DrawLineWidth)
+                    {
+                        CenterPoint = new CGPoint(location.X, location.Y),
+                        Size = DrawSize
+                    };
+                    break;
+                }
+                case DrawMode.Circle:
+                {
+                    var view = touch.View;
+                    var location = touch.LocationInView(view);
+
+                    newElement = new Circle(DrawColor, DrawLineWidth)
+                    {
+                        CenterPoint = new CGPoint(location.X, location.Y),
+                        Diameter = (float)(DrawSize.Width / 2.0)
+                    };
+                    break;
+                }
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            _activeDrawElements.Add(touch, newElement);
+            _drawElements.Add(newElement);
+
+            return newElement;
+        }
+
+        private void CommitDrawElement(IDrawElement drawElement)
+        {
+            // Have the drawElement draw any segments between points no longer being updated into the frozenContext and remove them from the drawElement.
+            drawElement.DrawInContext(FrozenContext, UsePreciseLocations);
+
+            SetFrozenImageNeedsUpdate();
+        }
+
+        private void FinishDrawElement(IDrawElement drawElement)
+        {
+            drawElement.DrawInContext(FrozenContext, UsePreciseLocations);
+
+            SetFrozenImageNeedsUpdate();
+
+            _drawElements.Remove(drawElement);
+            _finishedDrawElements.Add(drawElement);
+        }
+
+        #region Lines
+
+        private CGRect AddPointsOfType(PointType type, UITouch[] touches, Line line)
 		{
 			var accumulatedRect = CGRectExtensions.CGRectNull();
 
@@ -250,18 +329,21 @@ namespace XamarinPaint.UI {
 
 		private void CommitLine(Line line)
 		{
-			// Have the line draw any segments between points no longer being updated into the frozenContext and remove them from the line.
-			line.DrawFixedPointsInContext(FrozenContext, false, UsePreciseLocations);
-			SetFrozenImageNeedsUpdate();
+            // Have the line draw any segments between points no longer being updated into the frozenContext and remove them from the line.
+            line.DrawFixedPointsInContext(FrozenContext, false, UsePreciseLocations);
+            SetFrozenImageNeedsUpdate();
 		}
 
 		private void FinishLine(Line line)
 		{
-			line.DrawFixedPointsInContext(FrozenContext, UsePreciseLocations, true);
+            line.DrawFixedPointsInContext(FrozenContext, UsePreciseLocations, true);
 			SetFrozenImageNeedsUpdate();
-			_lines.Remove(line);
-			_finishedLines.Add(line);
+
+			_drawElements.Remove(line);
+			_finishedDrawElements.Add(line);
 		}
+
+        #endregion
 
         #endregion
     }
