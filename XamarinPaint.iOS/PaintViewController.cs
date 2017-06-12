@@ -60,6 +60,23 @@ namespace XamarinPaint.iOS
             }
         }
 
+        private LineMode _lineMode = LineMode.Continuous;
+        public LineMode LineMode
+        {
+            get => DrawView?.LineMode ?? _lineMode;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.LineMode = value;
+                }
+                else
+                {
+                    _lineMode = value;
+                }
+            }
+        }
+
         private nfloat _drawLineWidth = 2.0f;
         public nfloat DrawLineWidth
         {

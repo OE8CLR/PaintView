@@ -59,9 +59,10 @@ namespace XamarinPaint.iOS.Views {
 		}
 
         // Configure draw properties
-        public DrawMode DrawMode { get; set; } = DrawMode.Line;
-        public UIColor DrawColor { get; set; } = UIColor.Black;
-        public CGSize DrawSize { get; set; } = new CGSize(25.0, 25.0);
+        public DrawMode DrawMode { get; set; }    = DrawMode.Line;
+        public LineMode LineMode { get; set; }    = LineMode.Continuous;
+        public UIColor DrawColor { get; set; }    = UIColor.Black;
+        public CGSize DrawSize { get; set; }      = new CGSize(25.0, 25.0);
         public nfloat DrawLineWidth { get; set; } = 5.0f;
 
 
@@ -241,7 +242,7 @@ namespace XamarinPaint.iOS.Views {
             {
                 case DrawMode.Line:
                 {
-                    newElement = new Line(DrawColor, DrawLineWidth);
+                    newElement = new Line(DrawColor, GetDashPattern(), DrawLineWidth);
                     break;
                 }
                 case DrawMode.Cross:
@@ -294,6 +295,23 @@ namespace XamarinPaint.iOS.Views {
 
             _drawElements.Remove(drawElement);
             _finishedDrawElements.Add(drawElement);
+        }
+
+        private nfloat[] GetDashPattern()
+        {
+            // Patterns be like: "new[] { LINEWIDTH, LINESPACE }"
+
+            switch (LineMode)
+            {
+                case LineMode.Dashed:
+                    return new[] { new nfloat(5.0), new nfloat(10.0) };
+                case LineMode.Dotted:
+                    return new[] { new nfloat(1.0), new nfloat(10.0) };
+                case LineMode.DashedDotted:
+                    return new[] { new nfloat(5.0), new nfloat(10.0), new nfloat(1.0), new nfloat(10.0) };
+                default:
+                    return null;
+            }
         }
 
         #region Lines

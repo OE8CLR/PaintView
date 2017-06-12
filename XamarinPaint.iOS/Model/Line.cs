@@ -5,6 +5,7 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.Helpers;
+using XamarinPaint.iOS.Enum;
 using XamarinPaint.iOS.Interfaces;
 
 namespace XamarinPaint.iOS.Model {
@@ -19,12 +20,15 @@ namespace XamarinPaint.iOS.Model {
         public bool IsComplete => _pointsWaitingForUpdatesByEstimationIndex.Count == 0;
         public UIColor LineColor { get; }
         public nfloat LineWidth { get; }
+        public nfloat[] LineDash { get; }
+
         public CGRect Frame => CGRectExtensions.CGRectNull();
 
-        public Line(UIColor color, nfloat width)
+        public Line(UIColor color, nfloat[] lineDash, nfloat width)
         {
             LineColor = color ?? UIColor.Black;
             LineWidth = width != 0 ? width : 1.0f;
+            LineDash = lineDash ?? new[] { new nfloat(1.0), new nfloat(0) };
         }
 
         #region public methods
@@ -83,10 +87,14 @@ namespace XamarinPaint.iOS.Model {
                 var priorLocation = usePreciseLocation ? priorPoint.PreciseLocation : priorPoint.Location;
 
                 context.BeginPath();
+
                 context.MoveTo(priorLocation.X, priorLocation.Y);
                 context.AddLineToPoint(location.X, location.Y);
+
                 context.SetStrokeColor(LineColor.CGColor);
                 context.SetLineWidth(LineWidth);
+                context.SetLineDash(0, LineDash);
+
                 context.StrokePath();
 
                 maybePriorPoint = point;
@@ -124,7 +132,7 @@ namespace XamarinPaint.iOS.Model {
 
             if (committing.Count <= 1) return;
 
-            var committedLine = new Line(LineColor, LineWidth);
+            var committedLine = new Line(LineColor, LineDash, LineWidth);
             committedLine.Points.AddRange(committing);
             committedLine.DrawInContext(context, usePreciseLocation);
 
@@ -140,7 +148,7 @@ namespace XamarinPaint.iOS.Model {
 
         public void DrawCommitedPointsInContext(CGContext context, bool usePreciseLocation)
         {
-            var committedLine = new Line(LineColor, LineWidth);
+            var committedLine = new Line(LineColor, LineDash, LineWidth);
             committedLine.Points.AddRange(CommittedPoints);
             committedLine.DrawInContext(context, usePreciseLocation);
         }

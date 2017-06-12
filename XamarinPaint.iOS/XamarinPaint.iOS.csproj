@@ -39,6 +39,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="Enum\DrawMode.cs" />
+    <Compile Include="Enum\LineMode.cs" />
     <Compile Include="Helpers\CGRectExtensions.cs" />
     <Compile Include="Model\Circle.cs" />
     <Compile Include="Model\Cross.cs" />

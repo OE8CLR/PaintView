@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using AdvancedColorPicker;
-using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.iOS.Enum;
@@ -23,7 +23,9 @@ namespace XamarinPaint.iOS.Demo
 
             // Configure toolbar
             NavigationController?.SetToolbarHidden(false, false);
-            UpdateToolbarItems();
+            UpdateToolbarItems(false);
+
+            UpdateNavigationBarItems(false);
         }
 
         #endregion
@@ -32,6 +34,8 @@ namespace XamarinPaint.iOS.Demo
 
         private void DrawColorButtonPressed(object sender, EventArgs args)
         {
+            PresentedViewController?.DismissViewController(false, null);
+
             ColorPickerViewController.Present(
                 NavigationController,
                 "Pick a color!",
@@ -42,12 +46,70 @@ namespace XamarinPaint.iOS.Demo
                 });
         }
 
+        private void DrawModeButtonPressed(object sender, EventArgs args)
+        {
+            PresentedViewController?.DismissViewController(false, null);
+
+            var drawModes = new List<DrawMode>
+            {
+                DrawMode.Line,
+                DrawMode.Circle,
+                DrawMode.Cross
+            };
+
+            var drawModeView = new TableViewSelector<DrawMode>(drawModes, DrawMode);
+            drawModeView.OnSelected += (o, mode) => DrawMode = mode;
+
+            var popoverView = drawModeView.PopoverPresentationController;
+            if (popoverView != null)
+            {
+                popoverView.BarButtonItem = sender as UIBarButtonItem;
+            }
+
+            PresentViewController(drawModeView, true, null);
+        }
+
+        private void LineModeButtonPressed(object sender, EventArgs args)
+        {
+            PresentedViewController?.DismissViewController(false, null);
+
+            var lineModes = new List<LineMode>
+            {
+                LineMode.Continuous,
+                LineMode.Dashed,
+                LineMode.Dotted,
+                LineMode.DashedDotted
+            };
+
+            var lineModeView = new TableViewSelector<LineMode>(lineModes, LineMode);
+            lineModeView.OnSelected += (o, mode) => LineMode = mode;
+
+            var popoverView = lineModeView.PopoverPresentationController;
+            if (popoverView != null)
+            {
+                popoverView.BarButtonItem = sender as UIBarButtonItem;
+            }
+
+            PresentViewController(lineModeView, true, null);
+        }
+
         private void SnapshotButtonPressed(object sender, EventArgs args)
         {
             var image = TakeShnapshotFromView();
             if (image != null)
             {
-                SaveImage(image);
+                var docsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+                var filename = System.IO.Path.Combine(docsDir, "Snapshot.png");
+
+                var imageData = image.AsPNG();
+                if (imageData.Save(filename, false, out NSError error))
+                {
+                    Console.WriteLine($"Saved snapshot at '{filename}'");
+                }
+                else
+                {
+                    Console.WriteLine($"Can't save image => {error}");
+                }
             }
         }
 
@@ -55,66 +117,30 @@ namespace XamarinPaint.iOS.Demo
 
         #region Private methods
 
-        private void UpdateToolbarItems()
+        private void UpdateToolbarItems(bool animated = true)
         {
+            var drawColorButton = new UIBarButtonItem("DrawColor", UIBarButtonItemStyle.Plain, DrawColorButtonPressed);
+
+            var drawModeButton = new UIBarButtonItem("DrawMode", UIBarButtonItemStyle.Plain, DrawModeButtonPressed);
+
+            var lineModeButton = new UIBarButtonItem("LineMode", UIBarButtonItemStyle.Plain, LineModeButtonPressed);
+
+            var flexibleSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);
+
+            SetToolbarItems(new[] { flexibleSpace, lineModeButton, drawModeButton, drawColorButton, flexibleSpace }, animated);
+        }
+
+        private void UpdateNavigationBarItems(bool animated = true)
+        {
+            var snapshotButton = new UIBarButtonItem("Snapshot", UIBarButtonItemStyle.Done, SnapshotButtonPressed);
+            NavigationItem.SetRightBarButtonItem(snapshotButton, false);
+
             var trashButton = new UIBarButtonItem(UIBarButtonSystemItem.Trash);
             trashButton.Clicked += (sender, args) => Clear();
 
             var undoButton = new UIBarButtonItem("Undo", UIBarButtonItemStyle.Plain, (o, args) => Undo());
 
-            var drawColorButton = new UIBarButtonItem("Draw Color", UIBarButtonItemStyle.Plain, DrawColorButtonPressed);
-
-            var takeSnapshotButton = new UIBarButtonItem("Snapshot", UIBarButtonItemStyle.Done, SnapshotButtonPressed);
-
-            var drawModeButton = new UIBarButtonItem(CreateDrawModeSegmentControl());
-
-            var flexibleSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);
-
-            SetToolbarItems(new[] { trashButton, flexibleSpace, drawModeButton, flexibleSpace, undoButton, drawColorButton, takeSnapshotButton }, false);
-        }
-
-        private void SaveImage(UIImage image)
-        {
-            var docsDir = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            var filename = System.IO.Path.Combine(docsDir, "Snapshot.png");
-
-            var imageData = image.AsPNG();
-            if (imageData.Save(filename, false, out NSError error))
-            {
-                Console.WriteLine($"Saved snapshot at '{filename}'");
-            }
-            else
-            {
-                Console.WriteLine($"Can't save image => {error}");
-            }
-        }
-
-        private UISegmentedControl CreateDrawModeSegmentControl()
-        {
-            var segmentedControl = new UISegmentedControl("Line", "Cross", "Circle")
-            {
-                Frame = new CGRect(0, 0, 200.0, 44.0),
-                ControlStyle = UISegmentedControlStyle.Bar,
-                SelectedSegment = 0
-            };
-
-            segmentedControl.ValueChanged += delegate (object sender, EventArgs args)
-            {
-                if (segmentedControl.SelectedSegment == 0)
-                {
-                    DrawMode = DrawMode.Line;
-                }
-                else if (segmentedControl.SelectedSegment == 1)
-                {
-                    DrawMode = DrawMode.Cross;
-                }
-                else if (segmentedControl.SelectedSegment == 2)
-                {
-                    DrawMode = DrawMode.Circle;
-                }
-            };
-
-            return segmentedControl;
+            NavigationItem.SetLeftBarButtonItems(new[] { trashButton, undoButton }, animated);
         }
 
         #endregion
