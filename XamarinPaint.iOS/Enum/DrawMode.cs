@@ -4,6 +4,7 @@
     {
         Line,
         Cross,
-        Circle
+        Circle,
+        Text
     }
 }

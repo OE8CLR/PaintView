@@ -269,6 +269,18 @@ namespace XamarinPaint.iOS.Views {
                     };
                     break;
                 }
+                case DrawMode.Text:
+                {
+                    var view = touch.View;
+                    var location = touch.LocationInView(view);
+                        
+                    newElement = new Text("Dummy", DrawColor, UIFont.FromName("Helvetica-Bold", 14.0f))
+                    {
+                        CenterPoint = new CGPoint(location.X, location.Y)
+                    };
+
+                    break;
+                }
                 default:
                     throw new ArgumentOutOfRangeException();
             }

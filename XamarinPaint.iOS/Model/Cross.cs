@@ -6,7 +6,7 @@ using XamarinPaint.iOS.Interfaces;
 
 namespace XamarinPaint.iOS.Model
 {
-    public class Cross : NSObject, IDrawElement
+    public class Cross : NSObject, IDrawElement, IDrawLineElement
     {
         public bool IsComplete => true;
         public UIColor LineColor { get; }

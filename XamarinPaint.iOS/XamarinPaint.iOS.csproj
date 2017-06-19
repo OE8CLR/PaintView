@@ -41,11 +41,13 @@
     <Compile Include="Enum\DrawMode.cs" />
     <Compile Include="Enum\LineMode.cs" />
     <Compile Include="Helpers\CGRectExtensions.cs" />
+    <Compile Include="Interfaces\IDrawLineElement.cs" />
     <Compile Include="Model\Circle.cs" />
     <Compile Include="Model\Cross.cs" />
     <Compile Include="Interfaces\IDrawElement.cs" />
     <Compile Include="Model\Line.cs" />
     <Compile Include="Model\LinePoint.cs" />
+    <Compile Include="Model\Text.cs" />
     <Compile Include="PaintViewController.cs" />
     <Compile Include="PaintViewController.designer.cs">
       <DependentUpon>PaintViewController.cs</DependentUpon>

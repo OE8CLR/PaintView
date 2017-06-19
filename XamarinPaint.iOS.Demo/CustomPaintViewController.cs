@@ -54,7 +54,8 @@ namespace XamarinPaint.iOS.Demo
             {
                 DrawMode.Line,
                 DrawMode.Circle,
-                DrawMode.Cross
+                DrawMode.Cross,
+                DrawMode.Text
             };
 
             var drawModeView = new TableViewSelector<DrawMode>(drawModes, DrawMode);

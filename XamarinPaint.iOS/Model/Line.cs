@@ -5,12 +5,11 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.Helpers;
-using XamarinPaint.iOS.Enum;
 using XamarinPaint.iOS.Interfaces;
 
 namespace XamarinPaint.iOS.Model {
 
-	public class Line : NSObject, IDrawElement
+	public class Line : NSObject, IDrawElement, IDrawLineElement
     {
 		private readonly Dictionary<NSNumber, LinePoint> _pointsWaitingForUpdatesByEstimationIndex = new Dictionary<NSNumber, LinePoint>();
 
