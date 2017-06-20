@@ -40,6 +40,7 @@
   <ItemGroup>
     <Compile Include="Enum\DrawMode.cs" />
     <Compile Include="Enum\LineMode.cs" />
+    <Compile Include="Enum\TextMode.cs" />
     <Compile Include="Helpers\CGRectExtensions.cs" />
     <Compile Include="Interfaces\IDrawLineElement.cs" />
     <Compile Include="Model\Circle.cs" />

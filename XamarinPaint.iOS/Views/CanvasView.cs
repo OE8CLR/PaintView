@@ -61,12 +61,14 @@ namespace XamarinPaint.iOS.Views {
         // Configure draw properties
         public DrawMode DrawMode { get; set; }    = DrawMode.Line;
         public LineMode LineMode { get; set; }    = LineMode.Continuous;
+        public TextMode TextMode { get; set; }    = TextMode.Medium;
         public UIColor DrawColor { get; set; }    = UIColor.Black;
         public CGSize DrawSize { get; set; }      = new CGSize(25.0, 25.0);
         public nfloat DrawLineWidth { get; set; } = 5.0f;
+        public string Text { get; set; }          = null;
 
 
-		[Export ("initWithCoder:")]
+        [Export ("initWithCoder:")]
 		public CanvasView (NSCoder coder) : base (coder)
 		{
 		}
@@ -168,7 +170,7 @@ namespace XamarinPaint.iOS.Views {
                 {
                     CommitDrawElement(drawElement);
                     updateRect = updateRect.UnionWith(drawElement.Frame);
-                }
+                } 
             }
             SetNeedsDisplayInRect(updateRect);
         }
@@ -274,9 +276,9 @@ namespace XamarinPaint.iOS.Views {
                     var view = touch.View;
                     var location = touch.LocationInView(view);
                         
-                    newElement = new Text("Dummy", DrawColor, UIFont.FromName("Helvetica-Bold", 14.0f))
+                    newElement = new Text(Text ?? "<NO_VALUE>", DrawColor, GetTextFont())
                     {
-                        CenterPoint = new CGPoint(location.X, location.Y)
+                        Location = new CGPoint(location.X, location.Y)
                     };
 
                     break;
@@ -323,6 +325,19 @@ namespace XamarinPaint.iOS.Views {
                     return new[] { new nfloat(5.0), new nfloat(10.0), new nfloat(1.0), new nfloat(10.0) };
                 default:
                     return null;
+            }
+        }
+
+        private UIFont GetTextFont()
+        {
+            switch (TextMode)
+            {
+                case TextMode.Small:
+                    return UIFont.FromName("Helvetica-Bold", 14.0f);
+                case TextMode.Large:
+                    return UIFont.FromName("Helvetica-Bold", 30.0f);
+                default:
+                    return UIFont.FromName("Helvetica-Bold", 20.0f);
             }
         }
 

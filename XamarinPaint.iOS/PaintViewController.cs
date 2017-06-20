@@ -77,6 +77,23 @@ namespace XamarinPaint.iOS
             }
         }
 
+        private TextMode _textMode = TextMode.Medium;
+        public TextMode TextMode
+        {
+            get => DrawView?.TextMode ?? _textMode;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.TextMode = value;
+                }
+                else
+                {
+                    _textMode = value;
+                }
+            }
+        }
+
         private nfloat _drawLineWidth = 2.0f;
         public nfloat DrawLineWidth
         {
@@ -90,6 +107,23 @@ namespace XamarinPaint.iOS
                 else
                 {
                     _drawLineWidth = value;
+                }
+            }
+        }
+
+        private string _text;
+        public string Text
+        {
+            get => DrawView?.Text ?? _text;
+            set
+            {
+                if (DrawView != null)
+                {
+                    DrawView.Text = value;
+                }
+                else
+                {
+                    _text = value;
                 }
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AdvancedColorPicker;
 using Foundation;
 using UIKit;
@@ -32,7 +33,7 @@ namespace XamarinPaint.iOS.Demo
 
         #region Button actions
 
-        private void DrawColorButtonPressed(object sender, EventArgs args)
+        private void ColorButtonPressed(object sender, EventArgs args)
         {
             PresentedViewController?.DismissViewController(false, null);
 
@@ -59,7 +60,13 @@ namespace XamarinPaint.iOS.Demo
             };
 
             var drawModeView = new TableViewSelector<DrawMode>(drawModes, DrawMode);
-            drawModeView.OnSelected += (o, mode) => DrawMode = mode;
+            drawModeView.OnSelected += (o, mode) =>
+            {
+                DrawMode = mode;
+                UpdateToolbarItems(false);
+
+                if (mode == DrawMode.Text) UpdateTextValue();
+            };
 
             var popoverView = drawModeView.PopoverPresentationController;
             if (popoverView != null)
@@ -94,6 +101,34 @@ namespace XamarinPaint.iOS.Demo
             PresentViewController(lineModeView, true, null);
         }
 
+        private void TextModeButtonPressed(object sender, EventArgs args)
+        {
+            PresentedViewController?.DismissViewController(false, null);
+
+            var textModes = new List<TextMode>
+            {
+                TextMode.Small,
+                TextMode.Medium,
+                TextMode.Large
+            };
+
+            var lineModeView = new TableViewSelector<TextMode>(textModes, TextMode);
+            lineModeView.OnSelected += (o, mode) => TextMode = mode;
+
+            var popoverView = lineModeView.PopoverPresentationController;
+            if (popoverView != null)
+            {
+                popoverView.BarButtonItem = sender as UIBarButtonItem;
+            }
+
+            PresentViewController(lineModeView, true, null);
+        }
+
+        private void SetTextButtonPressed(object sender, EventArgs args)
+        {
+            UpdateTextValue();
+        }
+
         private void SnapshotButtonPressed(object sender, EventArgs args)
         {
             var image = TakeShnapshotFromView();
@@ -120,15 +155,35 @@ namespace XamarinPaint.iOS.Demo
 
         private void UpdateToolbarItems(bool animated = true)
         {
-            var drawColorButton = new UIBarButtonItem("DrawColor", UIBarButtonItemStyle.Plain, DrawColorButtonPressed);
-
-            var drawModeButton = new UIBarButtonItem("DrawMode", UIBarButtonItemStyle.Plain, DrawModeButtonPressed);
-
-            var lineModeButton = new UIBarButtonItem("LineMode", UIBarButtonItemStyle.Plain, LineModeButtonPressed);
-
             var flexibleSpace = new UIBarButtonItem(UIBarButtonSystemItem.FlexibleSpace);
 
-            SetToolbarItems(new[] { flexibleSpace, lineModeButton, drawModeButton, drawColorButton, flexibleSpace }, animated);
+            var buttons = new List<UIBarButtonItem>();
+
+            buttons.Add(flexibleSpace);
+
+            var drawModeButton = new UIBarButtonItem("DrawMode", UIBarButtonItemStyle.Plain, DrawModeButtonPressed);
+            buttons.Add(drawModeButton);
+
+            if (DrawMode == DrawMode.Text)
+            {
+                var textModeButton = new UIBarButtonItem("TextMode", UIBarButtonItemStyle.Plain, TextModeButtonPressed);
+                buttons.Add(textModeButton);
+
+                var textButton = new UIBarButtonItem("SetText", UIBarButtonItemStyle.Plain, SetTextButtonPressed);
+                buttons.Add(textButton);
+            }
+            else
+            {
+                var lineModeButton = new UIBarButtonItem("LineMode", UIBarButtonItemStyle.Plain, LineModeButtonPressed);
+                buttons.Add(lineModeButton);
+            }
+
+            var colorButton = new UIBarButtonItem("Color", UIBarButtonItemStyle.Plain, ColorButtonPressed);
+            buttons.Add(colorButton);
+
+            buttons.Add(flexibleSpace);
+
+            SetToolbarItems(buttons.ToArray(), animated);
         }
 
         private void UpdateNavigationBarItems(bool animated = true)
@@ -142,6 +197,32 @@ namespace XamarinPaint.iOS.Demo
             var undoButton = new UIBarButtonItem("Undo", UIBarButtonItemStyle.Plain, (o, args) => Undo());
 
             NavigationItem.SetLeftBarButtonItems(new[] { trashButton, undoButton }, animated);
+        }
+
+        private void UpdateTextValue()
+        {
+            var alert = UIAlertController.Create("", "Set the text for the 'TextMode'", UIAlertControllerStyle.Alert);
+
+            alert.AddTextField(textField =>
+            {
+                textField.Placeholder = "Enter text ...";
+                textField.Text = !string.IsNullOrEmpty(Text) ? Text : null;
+            });
+
+            var okAction = UIAlertAction.Create("Ok", UIAlertActionStyle.Default, action =>
+            {
+                var text = alert.TextFields.FirstOrDefault()?.Text;
+                if (!string.IsNullOrEmpty(text))
+                {
+                    Text = text;
+                }
+            });
+            alert.AddAction(okAction);
+
+            var cancelAction = UIAlertAction.Create("Cancle", UIAlertActionStyle.Cancel, null);
+            alert.AddAction(cancelAction);
+
+            PresentViewController(alert, true, null);
         }
 
         #endregion
