@@ -8,19 +8,20 @@ namespace XamarinPaint.iOS
 {
     public partial class PaintViewController : UIViewController
     {
-        private UIImage _cachedBackgroundImage;
+        private bool _isFirstViewDidAppear;
+
+        private UIImage _backgroundImage;
         public UIImage BackgroundImage
         {
-            get => ImageView?.Image;
+            get => _backgroundImage;
             set
             {
+                _backgroundImage = value;
+
                 if (ImageView != null)
                 {
                     ImageView.Image = value;
-                }
-                else
-                {
-                    _cachedBackgroundImage = value;
+                    UpdateBackgroundImageConstraints();
                 }
             }
         }
@@ -131,6 +132,7 @@ namespace XamarinPaint.iOS
 
         public PaintViewController() : base("PaintViewController", null)
         {
+            _isFirstViewDidAppear = true;
         }
 
 
@@ -140,22 +142,27 @@ namespace XamarinPaint.iOS
         {
             base.ViewDidLoad();
 
-            // Configure view
-            ImageView.Image = _cachedBackgroundImage ?? BackgroundImage;
             DrawView.DrawColor = _cachedDrawColor ?? DrawColor;
             DrawView.DrawMode = _drawMode;
             DrawView.DrawLineWidth = _drawLineWidth;
+
+            ImageView.Image = BackgroundImage;
         }
 
-        public override bool ShouldAutorotate()
+        public override void ViewDidAppear(bool animated)
         {
-            return true;
+            base.ViewDidAppear(animated);
+
+            if (_isFirstViewDidAppear)
+            {
+                _isFirstViewDidAppear = false;
+                UpdateBackgroundImageConstraints();
+            }
         }
 
-        public override UIInterfaceOrientationMask GetSupportedInterfaceOrientations()
-        {
-            return UIInterfaceOrientationMask.LandscapeRight | UIInterfaceOrientationMask.LandscapeLeft;
-        }
+        #endregion
+
+        #region Public methods
 
         public override void TouchesBegan(NSSet touches, UIEvent evt)
         {
@@ -172,10 +179,6 @@ namespace XamarinPaint.iOS
             DrawView.DrawTouches(touches, evt);
             DrawView.EndTouches(touches);
         }
-
-        #endregion
-
-        #region Public methods
 
         public void Undo() => DrawView?.Undo();
 
@@ -214,6 +217,30 @@ namespace XamarinPaint.iOS
             {
                 UIGraphics.EndImageContext();
             }
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private void UpdateBackgroundImageConstraints()
+        {
+            // Get a square with the min size from height or width
+            var maxSize = View.Frame.Size;
+            if (maxSize.Width > maxSize.Height)
+            {
+                maxSize = new CGSize(maxSize.Height, maxSize.Height);
+            }
+            else
+            {
+                maxSize = new CGSize(maxSize.Width, maxSize.Width);
+            }
+
+            // Set image view constraints
+            ImageHeightConstraint.Constant = maxSize.Height;
+            ImageWidthConstraint.Constant = maxSize.Width;
+
+            View.LayoutIfNeeded();
         }
 
         #endregion
