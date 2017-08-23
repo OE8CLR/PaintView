@@ -36,7 +36,9 @@
     <Reference Include="System.Core" />
     <Reference Include="Xamarin.iOS" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <InterfaceDefinition Include="PaintViewController.xib" />
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="Enum\DrawMode.cs" />
     <Compile Include="Enum\LineMode.cs" />
@@ -58,9 +60,6 @@
     <Compile Include="Views\CanvasView.designer.cs">
       <DependentUpon>CanvasView.cs</DependentUpon>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <InterfaceDefinition Include="PaintViewController.xib" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.iOS.CSharp.targets" />
 </Project>

@@ -3,12 +3,15 @@ using CoreGraphics;
 using Foundation;
 using UIKit;
 using XamarinPaint.iOS.Enum;
+using XamarinPaint.iOS.Views;
 
 namespace XamarinPaint.iOS
 {
     public partial class PaintViewController : UIViewController
     {
-        private bool _isFirstViewDidAppear;
+        public UIView ContentView { get; private set; }
+        public UIImageView ImageView { get; private set; }
+        public CanvasView DrawView { get; private set; }
 
         private UIImage _backgroundImage;
         public UIImage BackgroundImage
@@ -21,7 +24,6 @@ namespace XamarinPaint.iOS
                 if (ImageView != null)
                 {
                     ImageView.Image = value;
-                    UpdateBackgroundImageConstraints();
                 }
             }
         }
@@ -129,12 +131,9 @@ namespace XamarinPaint.iOS
             }
         }
 
-
         public PaintViewController() : base("PaintViewController", null)
         {
-            _isFirstViewDidAppear = true;
         }
-
 
         #region View life cylce
 
@@ -142,22 +141,32 @@ namespace XamarinPaint.iOS
         {
             base.ViewDidLoad();
 
-            DrawView.DrawColor = _cachedDrawColor ?? DrawColor;
-            DrawView.DrawMode = _drawMode;
-            DrawView.DrawLineWidth = _drawLineWidth;
-
-            ImageView.Image = BackgroundImage;
-        }
-
-        public override void ViewDidAppear(bool animated)
-        {
-            base.ViewDidAppear(animated);
-
-            if (_isFirstViewDidAppear)
+            ContentView = new UIView(new CGRect(CGPoint.Empty, View.Frame.Size))
             {
-                _isFirstViewDidAppear = false;
-                UpdateBackgroundImageConstraints();
-            }
+                AutoresizingMask = UIViewAutoresizing.FlexibleDimensions,
+                BackgroundColor = UIColor.White
+            };
+            View.AddSubview(ContentView);
+
+            ImageView = new UIImageView(new CGRect(CGPoint.Empty, GetFitInViewSize()))
+            {
+                Center = View.Center,
+                AutoresizingMask = UIViewAutoresizing.FlexibleMargins,
+                Image = BackgroundImage,
+                ContentMode = UIViewContentMode.ScaleAspectFit
+            };
+            ContentView.AddSubview(ImageView);
+
+            DrawView = new CanvasView(new CGRect(CGPoint.Empty, GetMinViewOverlappingSize()))
+            {
+                Center = View.Center,
+                AutoresizingMask = UIViewAutoresizing.FlexibleMargins,
+                BackgroundColor = UIColor.Clear,
+                DrawColor = _cachedDrawColor ?? DrawColor,
+                DrawMode = _drawMode,
+                DrawLineWidth = _drawLineWidth
+            };
+            ContentView.AddSubview(DrawView);
         }
 
         #endregion
@@ -223,24 +232,28 @@ namespace XamarinPaint.iOS
 
         #region Private methods
 
-        private void UpdateBackgroundImageConstraints()
+        private CGSize GetFitInViewSize()
         {
-            // Get a square with the min size from height or width
-            var maxSize = View.Frame.Size;
-            if (maxSize.Width > maxSize.Height)
+            var size = View.Frame.Size;
+
+            if (size.Width > size.Height)
             {
-                maxSize = new CGSize(maxSize.Height, maxSize.Height);
-            }
-            else
-            {
-                maxSize = new CGSize(maxSize.Width, maxSize.Width);
+                return new CGSize(size.Height, size.Height);
             }
 
-            // Set image view constraints
-            ImageHeightConstraint.Constant = maxSize.Height;
-            ImageWidthConstraint.Constant = maxSize.Width;
+            return new CGSize(size.Width, size.Width);
+        }
 
-            View.LayoutIfNeeded();
+        private CGSize GetMinViewOverlappingSize()
+        {
+            var size = UIScreen.MainScreen.Bounds.Size;
+
+            if (size.Width > size.Height)
+            {
+                return new CGSize(size.Width, size.Width);
+            }
+
+            return new CGSize(size.Height, size.Height);
         }
 
         #endregion
